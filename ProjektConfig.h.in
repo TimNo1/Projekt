@@ -1,0 +1,3 @@
+// the configured options and settings for Projekt
+#define Projekt_VERSION_MAJOR @Projekt_VERSION_MAJOR@
+#define Projekt_VERSION_MINOR @Projekt_VERSION_MINOR@
