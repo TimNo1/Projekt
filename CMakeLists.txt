@@ -17,3 +17,9 @@ include_directories("${PROJECT_BINARY_DIR}")
  
 # add the executable
 add_executable(Projekt main.cpp)
+
+# add a "test" target:
+enable_testing()
+
+# does the application run
+add_test (ProjektRuns Projekt argument)
