@@ -27,4 +27,4 @@ target_link_libraries (Projekt KmerFinder)
 enable_testing()
 
 # does the application run
-add_test (ProjektRuns Projekt argument)
+# add_test (ProjektRuns Projekt argument)
