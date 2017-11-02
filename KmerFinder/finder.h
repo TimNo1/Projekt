@@ -4,16 +4,16 @@
 #include<string>
 #include<vector>
 
-namespace std
+namespace finder
 {
     struct kMerTriple {
-        string s;
+        std::string s;
         long i;
         bool p;
     };
     
-    vector<kMerTriple*>* getKmers(string s, int k);
-}
+    std::vector<kMerTriple*>* getKmers(std::string s, int k);
+} // namespace finder
 
 
 #endif

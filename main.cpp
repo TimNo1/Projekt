@@ -14,7 +14,7 @@ int main (int argc, char *argv[])
     std::string s = "";
     getline(std::cin, s);
     
-    std::vector<std::kMerTriple*> v = *getKmers(s, 3);
+    std::vector<finder::kMerTriple*> v = *finder::getKmers(s, 3);
         
     for (long i=0, n=v.size(); i<n; i++) {
         fprintf(stdout, "%s %ld\n", v[i]->s.c_str(), v[i]->i);

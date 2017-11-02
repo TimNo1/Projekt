@@ -1,16 +1,15 @@
 #include "finder.h"
 
-namespace std
+namespace finder
 {
-    vector<kMerTriple*>* getKmers(string s, int k){
+    std::vector<kMerTriple*>* getKmers(std::string s, int k){
         if (s.length()<k) {
-            return new vector<kMerTriple*>(0);
+            return new std::vector<kMerTriple*>(0);
         }
         
-        vector<kMerTriple*>* kmers = new vector<kMerTriple*>(s.length()-k);
+        std::vector<kMerTriple*>* kmers = new std::vector<kMerTriple*>(s.length()-k+1);
         
-        for (long i=0, n=s.length(); i<n-k; i++) {
-            
+        for (long i=0, n=s.length(); i<n-k+1; i++) {
             kMerTriple* triple = new kMerTriple();
             triple->i = i;
             triple->s = s.substr(i, k);
@@ -21,4 +20,4 @@ namespace std
         
         return kmers;
     }
-}
+} // namespace finder
