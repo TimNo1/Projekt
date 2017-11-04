@@ -3,6 +3,7 @@
 #include <iostream>
 #include "ProjektConfig.h"
 #include "finder.h"
+#include "fasta.h"
 
 int main (int argc, char *argv[])
 {

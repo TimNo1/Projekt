@@ -17,11 +17,14 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 # add directories for libraries
 include_directories ("${PROJECT_SOURCE_DIR}/KmerFinder")
-add_subdirectory (KmerFinder) 
+include_directories ("${PROJECT_SOURCE_DIR}/fasta")
+add_subdirectory (KmerFinder)
+add_subdirectory (fasta)
 
 # add the executable
 add_executable(Projekt main.cpp)
 target_link_libraries (Projekt KmerFinder)
+target_link_libraries (Projekt fasta)
 
 # add a "test" target:
 enable_testing()
