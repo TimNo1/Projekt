@@ -54,14 +54,17 @@ include_directories("${PROJECT_BINARY_DIR}")
 # add directories for libraries
 include_directories ("${PROJECT_SOURCE_DIR}/KmerFinder")
 include_directories ("${PROJECT_SOURCE_DIR}/fasta")
+include_directories ("${PROJECT_SOURCE_DIR}/minimizer")
 add_subdirectory (KmerFinder)
 add_subdirectory (fasta)
+add_subdirectory (minimizer)
 
 # add the executable
 add_executable(Projekt main.cpp)
 target_link_libraries (Projekt KmerFinder)
 target_link_libraries (Projekt fasta)
 target_link_libraries (Projekt gtest_main)
+target_link_libraries (Projekt minimizer)
 
 
 # add a "test" target:
@@ -69,3 +72,6 @@ enable_testing()
 
 # does the application run
 # add_test (ProjektRuns Projekt argument)
+
+# c++11
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
