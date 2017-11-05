@@ -46,7 +46,7 @@ namespace {
     }
 
     void processState(std::deque<minimizer::MinimizerTriple>& dq,
-                      std::unordered_set<minimizer::MinimizerTriple, minimizer::MinimizerTripleHasher>& result) {
+                      std::unordered_set<minimizer::MinimizerTriple>& result) {
         assert(!dq.empty());
         minimizer::MinimizerTriple front = dq.front();
         dq.pop_front();
@@ -71,8 +71,8 @@ namespace {
 
 namespace minimizer {
 
-    std::unordered_set<MinimizerTriple, MinimizerTripleHasher> computeMinimizers(const std::string &target, int w, int k) {
-        std::unordered_set<MinimizerTriple, MinimizerTripleHasher> ret;
+    std::unordered_set<MinimizerTriple> computeMinimizers(const std::string &target, int w, int k) {
+        std::unordered_set<MinimizerTriple> ret;
         int n = target.size();
 
         if (n < k) {

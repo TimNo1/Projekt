@@ -25,7 +25,7 @@ int main (int argc, char *argv[])
 
     std::cout << std::endl;
     std::cout << "minimizer example" << std::endl;
-    std::unordered_set<minimizer::MinimizerTriple, minimizer::MinimizerTripleHasher> vec = minimizer::computeMinimizers("TAGCATGCGTAAGCG", 4, 3);
+    std::unordered_set<minimizer::MinimizerTriple> vec = minimizer::computeMinimizers("TAGCATGCGTAAGCG", 4, 3);
     for (const auto& it: vec) {
         std::cout << "POSITION: " << it.position << "   HASH: " << it.h << "    IS_RC: " << it.rc << std::endl;
     }

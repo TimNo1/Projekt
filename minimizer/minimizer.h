@@ -29,15 +29,18 @@ namespace minimizer {
         }
     };
 
-    struct MinimizerTripleHasher {
+    std::unordered_set<MinimizerTriple> computeMinimizers(const std::string& target, int w, int k);
+
+} // namespace minimizer
+
+namespace std {
+    template<>
+    struct hash<minimizer::MinimizerTriple> {
         size_t operator()(const minimizer::MinimizerTriple &mp) const {
             return (mp.position << 1) + (mp.rc ? 1
                                                : 0); // dva minimizera ce imati isti hash samo ako su na istoj poziciji i oba su rc ili oba nisu rc
         }
     };
-
-    std::unordered_set<MinimizerTriple, MinimizerTripleHasher> computeMinimizers(const std::string& target, int w, int k);
-
-} // namespace minimizer
+} //namespace std
 
 #endif //PROJEKT_MINIMIZER_H
