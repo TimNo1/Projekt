@@ -5,6 +5,7 @@
 #include "ProjektConfig.h"
 #include "finder.h"
 #include "minimizer/minimizer.h"
+#include "fasta.h"
 
 int main (int argc, char *argv[])
 {
@@ -22,6 +23,8 @@ int main (int argc, char *argv[])
         fprintf(stdout, "%s %ld\n", v[i]->s.c_str(), v[i]->i);
     }
 
+    std::cout << std::endl;
+    std::cout << "minimizer example" << std::endl;
     std::unordered_set<minimizer::MinimizerTriple, minimizer::MinimizerTripleHasher> vec = minimizer::computeMinimizers("TAGCATGCGTAAGCG", 4, 3);
     for (const auto& it: vec) {
         std::cout << "POSITION: " << it.position << "   HASH: " << it.h << "    IS_RC: " << it.rc << std::endl;
