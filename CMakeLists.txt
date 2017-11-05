@@ -17,14 +17,16 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 # add directories for libraries
 include_directories ("${PROJECT_SOURCE_DIR}/KmerFinder")
-add_subdirectory (KmerFinder) 
+add_subdirectory (KmerFinder)
+add_subdirectory(minimizer)
 
 # add the executable
 add_executable(Projekt main.cpp)
-target_link_libraries (Projekt KmerFinder)
+target_link_libraries (Projekt KmerFinder minimizer)
 
 # add a "test" target:
 enable_testing()
 
 # does the application run
 # add_test (ProjektRuns Projekt argument)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
