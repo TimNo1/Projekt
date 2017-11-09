@@ -66,7 +66,6 @@ target_link_libraries (Projekt fasta)
 target_link_libraries (Projekt gtest_main)
 target_link_libraries (Projekt minimizer)
 
-
 # add a "test" target:
 enable_testing()
 
