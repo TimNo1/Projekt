@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <unordered_set>
+#include <vector>
+#include <pair>
 #include "ProjektConfig.h"
 #include "finder.h"
 #include "minimizer/minimizer.h"
@@ -9,6 +11,9 @@
 extern "C"{
 #include "fasta.h"
 }
+
+using namespace std;
+
 void printHashFromFastaFile(char* seqfile);
 void simpleExample();
 
@@ -21,6 +26,13 @@ int main (int argc, char *argv[])
     printHashFromFastaFile(argv[1]);
     
     return 0;
+}
+
+void getPairIndecies(vector<pair<int, int>>* lcskpp_reconstruction, const string& a, const string& b){
+    unordered_set<minimizer::MinimizerTriple> vecA = minimizer::computeMinimizers(a, 20, 15);
+    unordered_set<minimizer::MinimizerTriple> vecB = minimizer::computeMinimizers(b, 20, 15);
+
+    vector<pair<int, int>> matches =
 }
 
 void printHashFromFastaFile(char* seqfile){
