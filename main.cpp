@@ -6,10 +6,11 @@
 #include <algorithm>
 #include "ProjektConfig.h"
 #include "finder.h"
+#include "lcskpp.h"
 #include "minimizer/minimizer.h"
 
-#define K 3
-#define W 7
+#define K 15
+#define W 20
 
 extern "C"{
 #include "fasta.h"
@@ -64,9 +65,14 @@ void testMatchesFromFastaFile(char* seqfile){
     vector<pair<int, int>> matches;
     getMatches(string(sequenceStringA, sequenceSizeA), string(sequenceStringB, sequenceSizeB), &matches);
 
-    for (const pair<int, int> pair : matches){
+    int len = 0;
+    vector<pair<int, int>> recon;
+    lcskpp_sparse_fast(matches, K, &len, &recon); //K je moguce kriv ovdje
+
+    for (const pair<int, int> pair : recon){
         printf("(%d, %d)\n", pair.first, pair.second);
     }
+    printf("%d", len);
 
     free(sequenceStringA);
     free(sequenceNameA);

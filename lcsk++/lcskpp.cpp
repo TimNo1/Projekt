@@ -156,7 +156,7 @@ static void fill_lcskpp_reconstruction(
 }
 
 // Assumes matches is sorted by standard pair ordering.
-static void lcskpp_sparse_fast(
+void lcskpp_sparse_fast(
     const vector<pair<int, int> >& matches,
     const int k, int* lcskpp_length,
     vector<pair<int, int> >* lcskpp_reconstruction) {
@@ -173,7 +173,7 @@ static void lcskpp_sparse_fast(
   for (auto it = matches.begin(); it != matches.end(); ++it) {
     int idx = it - matches.begin();
     events.push_back(make_tuple(it->first, it->second, 
-				idx+matches.size())); // begin
+                                (int) (idx+matches.size()))); // begin
     events.push_back(make_tuple(it->first+k, it->second+k, idx)); // end
     
     n = max(n, it->first+k);

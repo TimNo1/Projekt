@@ -55,9 +55,11 @@ include_directories("${PROJECT_BINARY_DIR}")
 include_directories ("${PROJECT_SOURCE_DIR}/KmerFinder")
 include_directories ("${PROJECT_SOURCE_DIR}/fasta")
 include_directories ("${PROJECT_SOURCE_DIR}/minimizer")
+include_directories ("${PROJECT_SOURCE_DIR}/lcsk++")
 add_subdirectory (KmerFinder)
 add_subdirectory (fasta)
 add_subdirectory (minimizer)
+add_subdirectory (lcsk++)
 
 # add the executable
 add_executable(Projekt main.cpp)
@@ -65,6 +67,7 @@ target_link_libraries (Projekt KmerFinder)
 target_link_libraries (Projekt fasta)
 target_link_libraries (Projekt gtest_main)
 target_link_libraries (Projekt minimizer)
+target_link_libraries(Projekt lcskpp)
 
 # add a "test" target:
 enable_testing()

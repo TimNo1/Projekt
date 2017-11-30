@@ -49,9 +49,9 @@ void lcskpp_sparse_fast(
         std::vector<std::pair<int, int> >* lcskpp_reconstruction);
 
 void lcskpp_sparse_fast(
-        const vector<pair<int, int> >& matches,
+        const std::vector<std::pair<int, int> >& matches,
         const int k, int* lcskpp_length,
-        vector<pair<int, int> >* lcskpp_reconstruction);
+        std::vector<std::pair<int, int> >* lcskpp_reconstruction);
 
 // This function tests whether LCSk++ has been reconstructed
 // successfully.
