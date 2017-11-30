@@ -3,10 +3,13 @@
 #include <iostream>
 #include <unordered_set>
 #include <vector>
-#include <pair>
+#include <algorithm>
 #include "ProjektConfig.h"
 #include "finder.h"
 #include "minimizer/minimizer.h"
+
+#define K 3
+#define W 7
 
 extern "C"{
 #include "fasta.h"
@@ -15,6 +18,7 @@ extern "C"{
 using namespace std;
 
 void printHashFromFastaFile(char* seqfile);
+void testMatchesFromFastaFile(char* seqfile);
 void simpleExample();
 
 int main (int argc, char *argv[])
@@ -23,16 +27,53 @@ int main (int argc, char *argv[])
                 Projekt_VERSION_MAJOR,
                 Projekt_VERSION_MINOR);
     
-    printHashFromFastaFile(argv[1]);
+    //printHashFromFastaFile(argv[1]);
+    testMatchesFromFastaFile(argv[1]);
     
     return 0;
 }
 
-void getPairIndecies(vector<pair<int, int>>* lcskpp_reconstruction, const string& a, const string& b){
-    unordered_set<minimizer::MinimizerTriple> vecA = minimizer::computeMinimizers(a, 20, 15);
-    unordered_set<minimizer::MinimizerTriple> vecB = minimizer::computeMinimizers(b, 20, 15);
+void getMatches(const string& a, const string& b, vector<pair<int,int>>* matches){
+    unordered_set<minimizer::MinimizerTriple> vecA = minimizer::computeMinimizers(a, W, K);
+    unordered_set<minimizer::MinimizerTriple> vecB = minimizer::computeMinimizers(b, W, K);
 
-    vector<pair<int, int>> matches =
+
+    for(const auto& minimizerA : vecA){
+        for(const auto& minimizerB : vecB){
+            if (minimizerA.h == minimizerB.h){
+                matches->push_back(make_pair(minimizerA.position, minimizerB.position));
+            }
+        }
+    }
+
+    sort(matches->begin(), matches->end());
+}
+
+void testMatchesFromFastaFile(char* seqfile){
+    FASTAFILE* ffp = OpenFASTA(seqfile);
+    char* sequenceStringA;
+    char* sequenceNameA;
+    int sequenceSizeA = 0;
+    char* sequenceStringB;
+    char* sequenceNameB;
+    int sequenceSizeB = 0;
+
+    ReadFASTA(ffp, &sequenceStringA, &sequenceNameA, &sequenceSizeA);
+    ReadFASTA(ffp, &sequenceStringB, &sequenceNameB, &sequenceSizeB);
+
+    vector<pair<int, int>> matches;
+    getMatches(string(sequenceStringA, sequenceSizeA), string(sequenceStringB, sequenceSizeB), &matches);
+
+    for (const pair<int, int> pair : matches){
+        printf("(%d, %d)\n", pair.first, pair.second);
+    }
+
+    free(sequenceStringA);
+    free(sequenceNameA);
+    free(sequenceStringB);
+    free(sequenceNameB);
+
+    CloseFASTA(ffp);
 }
 
 void printHashFromFastaFile(char* seqfile){
@@ -40,7 +81,7 @@ void printHashFromFastaFile(char* seqfile){
     char* sequenceString;
     char* sequenceName;
     int sequenceSize = 0;
-    
+
     while (ReadFASTA(ffp, &sequenceString, &sequenceName, &sequenceSize)) {
         std::cout<< std::string(sequenceName)<<std::endl;
         std::cout<< std::string(sequenceString, sequenceSize)<<std::endl;
