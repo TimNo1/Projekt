@@ -21,6 +21,7 @@ using namespace std;
 void printHashFromFastaFile(char* seqfile);
 void testMatchesFromFastaFile(char* seqfile);
 void simpleExample();
+void getLcskppLengthsFromFastaFile(char* seqfile, vector<pair<pair<string, string>, int>>* lcsks);
 
 int main (int argc, char *argv[])
 {
@@ -29,15 +30,27 @@ int main (int argc, char *argv[])
                 Projekt_VERSION_MINOR);
     
     //printHashFromFastaFile(argv[1]);
-    testMatchesFromFastaFile(argv[1]);
-    
+    //testMatchesFromFastaFile(argv[1]);
+
+    vector<pair<pair<string, string>, int>> lcsks;
+    getLcskppLengthsFromFastaFile(argv[1], &lcsks);
+
+    vector<pair<int, pair<string, string>>> lcsksSorted;
+    for(const auto& elem:lcsks){
+        if(elem.second>0){
+            lcsksSorted.push_back(make_pair(elem.second, elem.first));
+        }
+    }
+
+    sort(lcsksSorted.begin(), lcsksSorted.end());
+    for(const auto& elem:lcsksSorted){
+        printf("%s %s -> %d\n", elem.second.first.c_str(), elem.second.second.c_str(), elem.first);
+    }
+
     return 0;
 }
 
-void getMatches(const string& a, const string& b, vector<pair<int,int>>* matches){
-    unordered_set<minimizer::MinimizerTriple> vecA = minimizer::computeMinimizers(a, W, K);
-    unordered_set<minimizer::MinimizerTriple> vecB = minimizer::computeMinimizers(b, W, K);
-
+void getMatches(const unordered_set<minimizer::MinimizerTriple> vecA, const  unordered_set<minimizer::MinimizerTriple> vecB, vector<pair<int,int>>* matches){
 
     for(const auto& minimizerA : vecA){
         for(const auto& minimizerB : vecB){
@@ -62,8 +75,11 @@ void testMatchesFromFastaFile(char* seqfile){
     ReadFASTA(ffp, &sequenceStringA, &sequenceNameA, &sequenceSizeA);
     ReadFASTA(ffp, &sequenceStringB, &sequenceNameB, &sequenceSizeB);
 
+    unordered_set<minimizer::MinimizerTriple> vecA = minimizer::computeMinimizers(string(sequenceStringA, sequenceSizeA), W, K);
+    unordered_set<minimizer::MinimizerTriple> vecB = minimizer::computeMinimizers(string(sequenceStringB, sequenceSizeB), W, K);
+
     vector<pair<int, int>> matches;
-    getMatches(string(sequenceStringA, sequenceSizeA), string(sequenceStringB, sequenceSizeB), &matches);
+    getMatches(vecA, vecB, &matches);
 
     int len = 0;
     vector<pair<int, int>> recon;
@@ -80,6 +96,41 @@ void testMatchesFromFastaFile(char* seqfile){
     free(sequenceNameB);
 
     CloseFASTA(ffp);
+}
+
+void getLcskppLengthsFromFastaFile(char* seqfile, vector<pair<pair<string, string>, int>>* lcsks){
+    FASTAFILE* ffp = OpenFASTA(seqfile);
+    char* sequenceString;
+    char* sequenceName;
+    int sequenceSize = 0;
+    vector<pair<string, unordered_set<minimizer::MinimizerTriple>>> sequences;
+
+    while (ReadFASTA(ffp, &sequenceString, &sequenceName, &sequenceSize)) {
+        unordered_set<minimizer::MinimizerTriple> vec = minimizer::computeMinimizers(string(sequenceString, sequenceSize), W, K);
+        string name = string(sequenceName);
+        sequences.push_back(make_pair(name, vec));
+
+        int size = sequences.size();
+
+        free(sequenceString);
+        free(sequenceName);
+    }
+
+    CloseFASTA(ffp);
+
+    for (int i = 0; i < sequences.size(); ++i) {
+        for (int j = i+1; j < sequences.size(); ++j) {
+            vector<pair<int, int>> matches;
+            getMatches(sequences[i].second, sequences[j].second, &matches);
+
+            int len = 0;
+            vector<pair<int, int>> recon;
+            lcskpp_sparse_fast(matches, K, &len, &recon); //K je moguce kriv ovdje
+            lcsks->push_back(make_pair(make_pair(sequences[i].first, sequences[j].first), len));
+        }
+    }
+
+
 }
 
 void printHashFromFastaFile(char* seqfile){
