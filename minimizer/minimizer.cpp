@@ -7,31 +7,58 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
+#include <unordered_map>
 #include "minimizer.h"
 #include "DnaSequence.h"
 
 namespace {
+
+    int mulMod(int a, int b, int MOD) {
+        return (a * 1LL * b) % MOD;
+    }
+
+    int addMod(int a, int b, int MOD) {
+        return (a + b) % MOD;
+    }
+
+    int subMod(int a, int b, int MOD) {
+        a -= b;
+        if (a < 0)
+            a += MOD;
+        return a;
+    }
+
+    int getValue(char c, std::unordered_map<char, int>& mp) {
+        if (mp.find(c) == mp.end()) {
+            int sz = mp.size();
+            mp.insert({c, sz});
+            return sz;
+        }
+        return mp[c];
+    }
+    
     std::vector<hashType> hashKmers(minimizer::DnaSequence sequence, int k) {
         std::vector<hashType> ret;
         assert(sequence.getLen() >= k);
-        std::map<char, int> baseValue = {{'A', 3}, {'T', 2}, {'G', 1}, {'C', 0}};
+        std::unordered_map<char, int> baseValue;
+        const int MOD = 1e9 + 7;
+        const int BASE = 37;
 
         hashType lastPower = 1;
         for (int i = 0; i < k - 1; i++)
-            lastPower *= 4;
-
+            lastPower = mulMod(lastPower, BASE, MOD);
 
         hashType tmpHash = 0;
         for (int i = 0; i < k; i++) {
-            tmpHash *= 4;
-            tmpHash += baseValue[sequence.getCharAt(i)];
+            tmpHash = mulMod(tmpHash, BASE, MOD);
+            tmpHash += getValue(sequence.getCharAt(i), baseValue);
         }
         ret.push_back(tmpHash);
 
         for (int i = k, n = sequence.getLen(); i < n; i++) {
-            tmpHash -= baseValue[sequence.getCharAt(i - k)] * lastPower;
-            tmpHash *= 4;
-            tmpHash += baseValue[sequence.getCharAt(i)];
+            tmpHash = subMod(tmpHash, mulMod(getValue(sequence.getCharAt(i - k), baseValue) ,lastPower, MOD), MOD);
+            tmpHash = mulMod(tmpHash, BASE, MOD);
+            tmpHash += addMod(tmpHash, getValue(sequence.getCharAt(i), baseValue), MOD);
             ret.push_back(tmpHash);
         }
         return ret;
