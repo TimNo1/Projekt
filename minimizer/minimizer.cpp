@@ -15,22 +15,23 @@ namespace {
         std::vector<hashType> ret;
         assert(sequence.getLen() >= k);
         std::map<char, int> baseValue = {{'A', 3}, {'T', 2}, {'G', 1}, {'C', 0}};
+        const int BASE = 4;
 
         hashType lastPower = 1;
         for (int i = 0; i < k - 1; i++)
-            lastPower *= 4;
+            lastPower *= BASE;
 
 
         hashType tmpHash = 0;
         for (int i = 0; i < k; i++) {
-            tmpHash *= 4;
+            tmpHash *= BASE;
             tmpHash += baseValue[sequence.getCharAt(i)];
         }
         ret.push_back(tmpHash);
 
         for (int i = k, n = sequence.getLen(); i < n; i++) {
             tmpHash -= baseValue[sequence.getCharAt(i - k)] * lastPower;
-            tmpHash *= 4;
+            tmpHash *= BASE;
             tmpHash += baseValue[sequence.getCharAt(i)];
             ret.push_back(tmpHash);
         }
@@ -46,16 +47,22 @@ namespace {
     }
 
     void processState(std::deque<minimizer::MinimizerTriple>& dq,
-                      std::unordered_set<minimizer::MinimizerTriple>& result) {
+                      std::vector<minimizer::MinimizerTriple>& result, int& lastPositionTaken) {
         assert(!dq.empty());
-        minimizer::MinimizerTriple front = dq.front();
+        minimizer::MinimizerTriple& front = dq.front();
         dq.pop_front();
 
-        result.insert(front);
+        if (lastPositionTaken < front.position) {
+            result.push_back(front);
+            lastPositionTaken = front.position;
+        }
         while (!dq.empty() && dq.front().h == front.h) {
             front = dq.front();
             dq.pop_front();
-            result.insert(front);
+            if (lastPositionTaken < front.position) {
+                result.push_back(front);
+                lastPositionTaken = front.position;
+            }
         }
         dq.push_front(front);
     }
@@ -72,7 +79,6 @@ namespace {
 namespace minimizer {
 
     std::vector<MinimizerTriple> computeMinimizers(const std::string &target, int w, int k) {
-        std::unordered_set<MinimizerTriple> ret;
         std::vector<MinimizerTriple> retVec;
         int n = target.size();
 
@@ -99,25 +105,24 @@ namespace minimizer {
         // queue s maksimumom algoritam
         for (int i = 0; i < w; i++) {
             MinimizerTriple mp1 = MinimizerTriple(kmerHashes[i], i, false);
-            MinimizerTriple mp2 = MinimizerTriple(rcKmerHashes[i], i, true);
+//            MinimizerTriple mp2 = MinimizerTriple(rcKmerHashes[i], i, true);
             push(mp1, dq);
-            push(mp2, dq);
+//            push(mp2, dq);
         }
 
-        processState(dq, ret);
+        int lastPositionTaken = -1;
+
+        processState(dq, retVec, lastPositionTaken);
 
         for (int i = w; i < kmerHashes.size(); i++) {
             pop(i - w, dq);
             MinimizerTriple mp1 = MinimizerTriple(kmerHashes[i], i, false);
-            MinimizerTriple mp2 = MinimizerTriple(rcKmerHashes[i], i, true);
+//            MinimizerTriple mp2 = MinimizerTriple(rcKmerHashes[i], i, true);
             push(mp1, dq);
-            push(mp2, dq);
-            processState(dq, ret);
+//            push(mp2, dq);
+            processState(dq, retVec, lastPositionTaken);
         }
 
-        for (const auto& mini: ret)
-            retVec.push_back(mini);
-        sort(retVec.begin(), retVec.end());
         return retVec;
     }
 

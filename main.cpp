@@ -50,7 +50,9 @@ int main (int argc, char *argv[])
     return 0;
 }
 
-void getMatches(const vector<minimizer::MinimizerTriple> vecA, const  vector<minimizer::MinimizerTriple> vecB, vector<pair<int,int>>* matches){
+void getMatches(vector<minimizer::MinimizerTriple> vecA, vector<minimizer::MinimizerTriple> vecB, vector<pair<int,int>>* matches){
+    sort(vecA.begin(), vecA.end());
+    sort (vecB.begin(), vecB.end());
 
     int szA = vecA.size();
     int szB = vecB.size();
