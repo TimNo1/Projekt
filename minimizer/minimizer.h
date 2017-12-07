@@ -29,7 +29,7 @@ namespace minimizer {
         }
     };
 
-    std::unordered_set<MinimizerTriple> computeMinimizers(const std::string& target, int w, int k);
+    std::vector<MinimizerTriple> computeMinimizers(const std::string& target, int w, int k);
 
 } // namespace minimizer
 

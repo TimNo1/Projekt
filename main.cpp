@@ -50,13 +50,28 @@ int main (int argc, char *argv[])
     return 0;
 }
 
-void getMatches(const unordered_set<minimizer::MinimizerTriple> vecA, const  unordered_set<minimizer::MinimizerTriple> vecB, vector<pair<int,int>>* matches){
+void getMatches(const vector<minimizer::MinimizerTriple> vecA, const  vector<minimizer::MinimizerTriple> vecB, vector<pair<int,int>>* matches){
 
-    for(const auto& minimizerA : vecA){
-        for(const auto& minimizerB : vecB){
-            if (minimizerA.h == minimizerB.h){
-                matches->push_back(make_pair(minimizerA.position, minimizerB.position));
+    int szA = vecA.size();
+    int szB = vecB.size();
+    // two pointers
+    int i = 0;
+    int j = 0;
+    while (i < szA && j < szB) {
+        if (vecA[i].h == vecB[j].h) {
+            int oldJ = j;
+            while (vecA[i].h == vecB[j].h) {
+                matches->push_back({vecA[i].position, vecB[j].position});
+                j++;
             }
+            i++;
+            j = oldJ;
+        }
+        else if (vecA[i].h > vecB[j].h) {
+            j++;
+        }
+        else {
+            i++;
         }
     }
 
@@ -75,8 +90,8 @@ void testMatchesFromFastaFile(char* seqfile){
     ReadFASTA(ffp, &sequenceStringA, &sequenceNameA, &sequenceSizeA);
     ReadFASTA(ffp, &sequenceStringB, &sequenceNameB, &sequenceSizeB);
 
-    unordered_set<minimizer::MinimizerTriple> vecA = minimizer::computeMinimizers(string(sequenceStringA, sequenceSizeA), W, K);
-    unordered_set<minimizer::MinimizerTriple> vecB = minimizer::computeMinimizers(string(sequenceStringB, sequenceSizeB), W, K);
+    vector<minimizer::MinimizerTriple> vecA = minimizer::computeMinimizers(string(sequenceStringA, sequenceSizeA), W, K);
+    vector<minimizer::MinimizerTriple> vecB = minimizer::computeMinimizers(string(sequenceStringB, sequenceSizeB), W, K);
 
     vector<pair<int, int>> matches;
     getMatches(vecA, vecB, &matches);
@@ -103,10 +118,10 @@ void getLcskppLengthsFromFastaFile(char* seqfile, vector<pair<pair<string, strin
     char* sequenceString;
     char* sequenceName;
     int sequenceSize = 0;
-    vector<pair<string, unordered_set<minimizer::MinimizerTriple>>> sequences;
+    vector<pair<string, vector<minimizer::MinimizerTriple>>> sequences;
 
     while (ReadFASTA(ffp, &sequenceString, &sequenceName, &sequenceSize)) {
-        unordered_set<minimizer::MinimizerTriple> vec = minimizer::computeMinimizers(string(sequenceString, sequenceSize), W, K);
+        vector<minimizer::MinimizerTriple> vec = minimizer::computeMinimizers(string(sequenceString, sequenceSize), W, K);
         string name = string(sequenceName);
         sequences.push_back(make_pair(name, vec));
 
@@ -122,7 +137,6 @@ void getLcskppLengthsFromFastaFile(char* seqfile, vector<pair<pair<string, strin
         for (int j = i+1; j < sequences.size(); ++j) {
             vector<pair<int, int>> matches;
             getMatches(sequences[i].second, sequences[j].second, &matches);
-
             int len = 0;
             vector<pair<int, int>> recon;
             lcskpp_sparse_fast(matches, K, &len, &recon); //K je moguce kriv ovdje
@@ -143,7 +157,7 @@ void printHashFromFastaFile(char* seqfile){
         std::cout<< std::string(sequenceName)<<std::endl;
         std::cout<< std::string(sequenceString, sequenceSize)<<std::endl;
         
-        std::unordered_set<minimizer::MinimizerTriple> vec = minimizer::computeMinimizers(std::string(sequenceString, sequenceSize), 20, 15);
+        std::vector<minimizer::MinimizerTriple> vec = minimizer::computeMinimizers(std::string(sequenceString, sequenceSize), 20, 15);
         
         for (const auto& it: vec) {
             std::cout << "POSITION: " << it.position << "   HASH: " << it.h << "    IS_RC: " << it.rc << std::endl;

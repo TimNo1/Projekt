@@ -71,12 +71,13 @@ namespace {
 
 namespace minimizer {
 
-    std::unordered_set<MinimizerTriple> computeMinimizers(const std::string &target, int w, int k) {
+    std::vector<MinimizerTriple> computeMinimizers(const std::string &target, int w, int k) {
         std::unordered_set<MinimizerTriple> ret;
+        std::vector<MinimizerTriple> retVec;
         int n = target.size();
 
         if (n < k) {
-            return ret; // ne postoji ni jedan kmer
+            return retVec; // ne postoji ni jedan kmer
         }
 
         if (n < k + w - 1) {//ne postoji ni jedan window od w kmera
@@ -114,7 +115,10 @@ namespace minimizer {
             processState(dq, ret);
         }
 
-        return ret;
+        for (const auto& mini: ret)
+            retVec.push_back(mini);
+        sort(retVec.begin(), retVec.end());
+        return retVec;
     }
 
 
