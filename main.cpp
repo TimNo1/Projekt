@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <vector>
 #include <algorithm>
+#include <lis.h>
 #include "ProjektConfig.h"
 #include "finder.h"
 #include "lcskpp.h"
@@ -22,6 +23,7 @@ void printHashFromFastaFile(char* seqfile);
 void testMatchesFromFastaFile(char* seqfile);
 void simpleExample();
 void getLcskppLengthsFromFastaFile(char* seqfile, vector<pair<pair<string, string>, int>>* lcsks);
+void lisExample();
 
 int main (int argc, char *argv[])
 {
@@ -32,22 +34,39 @@ int main (int argc, char *argv[])
     //printHashFromFastaFile(argv[1]);
     //testMatchesFromFastaFile(argv[1]);
 
-    vector<pair<pair<string, string>, int>> lcsks;
-    getLcskppLengthsFromFastaFile(argv[1], &lcsks);
+//    vector<pair<pair<string, string>, int>> lcsks;
+//    getLcskppLengthsFromFastaFile(argv[1], &lcsks);
+//
+//    vector<pair<int, pair<string, string>>> lcsksSorted;
+//    for(const auto& elem:lcsks){
+//        if(elem.second>0){
+//            lcsksSorted.push_back(make_pair(elem.second, elem.first));
+//        }
+//    }
+//
+//    sort(lcsksSorted.begin(), lcsksSorted.end());
+//    for(const auto& elem:lcsksSorted){
+//        printf("%s %s -> %d\n", elem.second.first.c_str(), elem.second.second.c_str(), elem.first);
+//    }
 
-    vector<pair<int, pair<string, string>>> lcsksSorted;
-    for(const auto& elem:lcsks){
-        if(elem.second>0){
-            lcsksSorted.push_back(make_pair(elem.second, elem.first));
-        }
-    }
-
-    sort(lcsksSorted.begin(), lcsksSorted.end());
-    for(const auto& elem:lcsksSorted){
-        printf("%s %s -> %d\n", elem.second.first.c_str(), elem.second.second.c_str(), elem.first);
-    }
+    lisExample();
 
     return 0;
+}
+
+void lisExample() {
+    string a = "ACTATCAGTCAGT";
+    string b = "ACTACAGGATACAGTAG";
+    std::vector<minimizer::MinimizerTriple> aMin = minimizer::computeMinimizers(a, 2, 3);
+    std::vector<minimizer::MinimizerTriple> bMin = minimizer::computeMinimizers(b, 2, 3);
+
+    for (minimizer::MinimizerTriple mini: aMin)
+        std::cout << mini.h << std::endl;
+    std::cout << "--------------------------" << std::endl;
+    for (minimizer::MinimizerTriple mini: bMin)
+        std::cout << mini.h << std::endl;
+    std::cout << endl;
+    std::cout << lis::getLis(aMin, bMin);
 }
 
 void getMatches(vector<minimizer::MinimizerTriple> vecA, vector<minimizer::MinimizerTriple> vecB, vector<pair<int,int>>* matches){
