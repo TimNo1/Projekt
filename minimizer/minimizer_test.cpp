@@ -6,8 +6,14 @@
 
 //isprobavanje testova
 TEST(minimizerTest, minimizerTest) {
-    std::vector<minimizer::MinimizerTriple> result = minimizer::computeMinimizers("ACTG", 1, 3);
-    ASSERT_EQ(2, (int)result.size());
-//    ASSERT_EQ(1, 2);
+    std::vector<minimizer::MinimizerTriple> result = minimizer::computeMinimizers("ACTGATGC", 2, 3);
+    std::vector<minimizer::MinimizerTriple> expected = {minimizer::MinimizerTriple(9, -1, false), minimizer::MinimizerTriple(30, -1, false),
+                                                        minimizer::MinimizerTriple(14, -1, true)};
+    ASSERT_EQ((int)result.size(), (int)expected.size());
+    for (int i = 0; i < result.size(); i++) {
+        ASSERT_EQ(result[i].h, expected[i].h);
+        ASSERT_EQ(result[i].rc, expected[i].rc);
+    }
+
 }
 

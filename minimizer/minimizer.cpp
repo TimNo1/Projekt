@@ -11,18 +11,18 @@
 #include "DnaSequence.h"
 
 namespace {
-    std::vector<hashType> hashKmers(minimizer::DnaSequence sequence, int k) {
-        std::vector<hashType> ret;
+    std::vector<minimizer::hashType> hashKmers(minimizer::DnaSequence sequence, int k) {
+        std::vector<minimizer::hashType> ret;
         assert(sequence.getLen() >= k);
         std::map<char, int> baseValue = {{'A', 3}, {'T', 2}, {'G', 1}, {'C', 0}};
         const int BASE = 4;
 
-        hashType lastPower = 1;
+        minimizer::hashType lastPower = 1;
         for (int i = 0; i < k - 1; i++)
             lastPower *= BASE;
 
 
-        hashType tmpHash = 0;
+        minimizer::hashType tmpHash = 0;
         for (int i = 0; i < k; i++) {
             tmpHash *= BASE;
             tmpHash += baseValue[sequence.getCharAt(i)];
@@ -105,9 +105,9 @@ namespace minimizer {
         // queue s maksimumom algoritam
         for (int i = 0; i < w; i++) {
             MinimizerTriple mp1 = MinimizerTriple(kmerHashes[i], i, false);
-//            MinimizerTriple mp2 = MinimizerTriple(rcKmerHashes[i], i, true);
+            MinimizerTriple mp2 = MinimizerTriple(rcKmerHashes[i], i, true);
             push(mp1, dq);
-//            push(mp2, dq);
+            push(mp2, dq);
         }
 
         int lastPositionTaken = -1;
@@ -117,9 +117,9 @@ namespace minimizer {
         for (int i = w; i < kmerHashes.size(); i++) {
             pop(i - w, dq);
             MinimizerTriple mp1 = MinimizerTriple(kmerHashes[i], i, false);
-//            MinimizerTriple mp2 = MinimizerTriple(rcKmerHashes[i], i, true);
+            MinimizerTriple mp2 = MinimizerTriple(rcKmerHashes[i], i, true);
             push(mp1, dq);
-//            push(mp2, dq);
+            push(mp2, dq);
             processState(dq, retVec, lastPositionTaken);
         }
 

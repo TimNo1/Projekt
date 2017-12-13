@@ -8,7 +8,7 @@
 #include <minimizer.h>
 
 namespace lis {
-    int getLis(std::vector<minimizer::MinimizerTriple> v1, std::vector<minimizer::MinimizerTriple> v2);
+    std::pair<int, int> getLis(std::vector<minimizer::MinimizerTriple> v1, std::vector<minimizer::MinimizerTriple> v2);
 } // namespace lis
 
 #endif //PROJEKT_LIS_H

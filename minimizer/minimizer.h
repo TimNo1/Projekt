@@ -9,9 +9,10 @@
 #include <string>
 #include <unordered_set>
 
-typedef long long hashType;
 
 namespace minimizer {
+    typedef long long hashType;
+
     struct MinimizerTriple {
         hashType h;
         int position;
