@@ -55,11 +55,15 @@ include_directories ("${PROJECT_SOURCE_DIR}/fasta")
 include_directories ("${PROJECT_SOURCE_DIR}/minimizer")
 include_directories ("${PROJECT_SOURCE_DIR}/lcsk++")
 include_directories("${PROJECT_SOURCE_DIR}/lis")
+include_directories("${PROJECT_SOURCE_DIR}/thread_pool")
 add_subdirectory (KmerFinder)
 add_subdirectory (fasta)
 add_subdirectory (minimizer)
 add_subdirectory (lcsk++)
 add_subdirectory(lis)
+add_subdirectory(thread_pool)
+
+find_library(THREAD_POOL thread_pool thread_pool)
 
 # add the executable
 add_executable(Projekt main.cpp)
@@ -69,6 +73,7 @@ target_link_libraries (Projekt gtest_main)
 target_link_libraries (Projekt minimizer)
 target_link_libraries(Projekt lcskpp)
 target_link_libraries(Projekt lis)
+target_link_libraries(Projekt ${THREAD_POOL})
 
 # add a "test" target:
 enable_testing()
@@ -77,4 +82,4 @@ enable_testing()
 # add_test (ProjektRuns Projekt argument)
 
 # c++11
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lpthread -Wall")
