@@ -61,7 +61,7 @@ add_subdirectory (fasta)
 add_subdirectory (minimizer)
 add_subdirectory (lcsk++)
 add_subdirectory(lis)
-add_subdirectory(thread_pool EXCLUDE_FROM_ALL)
+add_subdirectory(thread_pool)
 
 # add the executable
 add_executable(Projekt main.cpp)
@@ -80,4 +80,4 @@ enable_testing()
 # add_test (ProjektRuns Projekt argument)
 
 # c++11
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lpthread")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lpthread -Wall")
