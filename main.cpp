@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <lis.h>
+#include <unordered_map>
 #include "ProjektConfig.h"
 #include "finder.h"
 #include "lcskpp.h"
@@ -18,8 +19,10 @@ extern "C"{
 }
 
 using namespace std;
-void outputInPaf(std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> sequences);
+void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
+                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht);
 std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinimizersFromFasta(char* f);
+std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& mins);
 
 int main (int argc, char *argv[])
 {
@@ -27,10 +30,29 @@ int main (int argc, char *argv[])
 //                Projekt_VERSION_MAJOR,
 //                Projekt_VERSION_MINOR);
     
-    outputInPaf(getMinimizersFromFasta(argv[1]));
+    auto mins = getMinimizersFromFasta(argv[1]);
+    auto ht = generateHashTable(mins);
+    outputOverlaps(mins, ht);
     return 0;
 }
 
+std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& mins) {
+    std::unordered_map<int, std::vector<lis::hashTableElement>> ret;
+//    for (int i = 0; i < (int)mins.size(); i++) {
+//        for (int j = 0; j < (int)mins[i].second.size(); j++) {
+//            minimizer::MinimizerTriple mini = mins[i].second[j];
+//            ret[mini.h].push_back(lis::hashTableElement(i, j, mini.rc));
+//        }
+//    }
+    return ret;
+
+}
+
+void insertInTable(std::unordered_map<int, std::vector<lis::hashTableElement>>& ht, int sequenceIndex, std::vector<minimizer::MinimizerTriple> mins) {
+    for (int i = 0, n = mins.size(); i < n; i++) {
+        ht[mins[i].h].push_back(lis::hashTableElement(sequenceIndex, i, mins[i].rc));
+    }
+}
 
 std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinimizersFromFasta(char* f) {
     FASTAFILE* ffp = OpenFASTA(f);
@@ -53,46 +75,28 @@ std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinim
 }
 
 
+void outputInPaf(const string& name1, const string& name2, bool plusStrand) {
+    printf("%s\t0\t0\t0\t", name1.c_str());
+    if (plusStrand)
+        printf("+");
+    else
+        printf("-");
+    printf("\t%s\n", name2.c_str());
+}
 //samo ispise iz pafa ono sto je potrebno da bi jaccard.py radio dobroo
-void outputInPaf(std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> sequences) {
+void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
+                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht) {
 
     double limit = 0.008;
     for (int i = 0; i < sequences.size(); ++i) {
-        for (int j = i+1; j < sequences.size(); ++j) {
-            auto l = lis::getLis(sequences[i].second, sequences[j].second);
-//            if (l * 1. / std::min(sequences[i].second.size(), sequences[j].second.size()) > limit) {    ...ovako se dobije slican rezultat, mozda se moze bolje s pametnijim limitom
-            if (l.first > 9 && l.first > l.second) {
-                std::cout << sequences[i].first << "\t";
-                for (int z = 0; z < 3; z++)
-                    std::cout << "0\t";
-                std::cout << "+\t";
-                std::cout << sequences[j].first << std::endl;
+            auto l = lis::getSimilar(i, sequences[i].second, ht);
+            insertInTable(ht, i, sequences[i].second);
+            for (auto element: l) {
+                outputInPaf(sequences[i].first, sequences[element.first].first, element.second);
             }
-            else if (l.second > 9) {
-
-                std::cout << sequences[i].first << "\t";
-                for (int z = 0; z < 3; z++)
-                    std::cout << "0\t";
-                std::cout << "-\t";
-                std::cout << sequences[j].first << std::endl;
-            }
-        }
     }
 }
 
-void outputSeqPairsByLis(char* seqfile) {
-    auto sequences = getMinimizersFromFasta(seqfile);
-    std::vector<pair<int, pair<std::string, std::string>>> result;
-    for (int i = 0; i < sequences.size(); ++i) {
-        for (int j = i+1; j < sequences.size(); ++j) {
-            result.push_back({lis::getLis(sequences[i].second, sequences[j].second).first, {sequences[i].first, sequences[j].first}});
-        }
-    }
-
-    sort(result.begin(), result.end());
-    for (pair<int, pair<string, string>> p: result)
-        cout << p.second.second << " " << p.second.first << " -> " << p.first << endl;
-}
 
 
 void printHashFromFastaFile(char* seqfile){
