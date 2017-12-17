@@ -4,12 +4,13 @@
 #include <unordered_set>
 #include <vector>
 #include <algorithm>
-#include <lis.h>
+#include "lis.h"
 #include <unordered_map>
 #include "ProjektConfig.h"
 #include "finder.h"
 #include "lcskpp.h"
 #include "minimizer/minimizer.h"
+#include "thread_pool/include/thread_pool/thread_pool.hpp"
 
 #define K 15
 #define W 5
@@ -29,6 +30,7 @@ int main (int argc, char *argv[])
 //    fprintf(stdout,"Version %d.%d\n",
 //                Projekt_VERSION_MAJOR,
 //                Projekt_VERSION_MINOR);
+    
     
     auto mins = getMinimizersFromFasta(argv[1]);
     auto ht = generateHashTable(mins);
@@ -54,26 +56,40 @@ void insertInTable(std::unordered_map<int, std::vector<lis::hashTableElement>>& 
     }
 }
 
+pair<string, vector<minimizer::MinimizerTriple>> returnNameMinimizerPair(const std::string &name, const std::string &target, int w, int k) {
+    vector<minimizer::MinimizerTriple> vec = minimizer::computeMinimizers(target, W, K);
+    return make_pair(name, vec);
+}
+
 std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinimizersFromFasta(char* f) {
     FASTAFILE* ffp = OpenFASTA(f);
     char* sequenceString;
     char* sequenceName;
     int sequenceSize = 0;
+    std::shared_ptr<thread_pool::ThreadPool> thread_pool =
+    thread_pool::createThreadPool();
+    
     vector<pair<string, vector<minimizer::MinimizerTriple>>> sequences;
-
+    std::vector<std::future<pair<string, vector<minimizer::MinimizerTriple>>>> future_sequnce;
+    
     while (ReadFASTA(ffp, &sequenceString, &sequenceName, &sequenceSize)) {
-        vector<minimizer::MinimizerTriple> vec = minimizer::computeMinimizers(string(sequenceString, sequenceSize), W, K);
+        string sequence = string(sequenceString, sequenceSize);
         string name = string(sequenceName);
-        sequences.push_back(make_pair(name, vec));
+        
+        future_sequnce.emplace_back(thread_pool->submit_task(returnNameMinimizerPair, std::ref(name), std::ref(name), W, K));
 
         free(sequenceString);
         free(sequenceName);
+    }
+    
+    for (auto& it: future_sequnce) {
+        it.wait();
+        sequences.push_back(it.get());
     }
 
     CloseFASTA(ffp);
     return sequences;
 }
-
 
 void outputInPaf(const string& name1, const string& name2, bool plusStrand) {
     printf("%s\t0\t0\t0\t", name1.c_str());
@@ -83,17 +99,32 @@ void outputInPaf(const string& name1, const string& name2, bool plusStrand) {
         printf("-");
     printf("\t%s\n", name2.c_str());
 }
+
+std::pair<int, std::vector<std::pair<int, bool>>> getSimilarWrapper(int sequenceIndex, std::vector<minimizer::MinimizerTriple> v1,
+                                                                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht){
+    auto lis = lis::getSimilar(sequenceIndex, v1, ht);
+    
+    return {sequenceIndex, lis};
+}
 //samo ispise iz pafa ono sto je potrebno da bi jaccard.py radio dobroo
 void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
                     std::unordered_map<int, std::vector<lis::hashTableElement>>& ht) {
 
+    std::shared_ptr<thread_pool::ThreadPool> thread_pool =
+    thread_pool::createThreadPool();
+    std::vector<std::future<std::pair<int, std::vector<std::pair<int, bool>>>>> thread_futures;
+    
     double limit = 0.008;
     for (int i = 0; i < sequences.size(); ++i) {
-            auto l = lis::getSimilar(i, sequences[i].second, ht);
-            insertInTable(ht, i, sequences[i].second);
-            for (auto element: l) {
-                outputInPaf(sequences[i].first, sequences[element.first].first, element.second);
-            }
+        thread_futures.emplace_back(thread_pool->submit_task(getSimilarWrapper, i,sequences[i].second, std::ref(ht)));
+    }
+    
+    for (auto& it: thread_futures) {
+        it.wait();
+        insertInTable(ht, it.get().first, sequences[it.get().first].second);
+        for (auto element: it.get().second) {
+            outputInPaf(sequences[it.get().first].first, sequences[element.first].first, element.second);
+        }
     }
 }
 
