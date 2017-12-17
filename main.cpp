@@ -58,9 +58,9 @@ void insertInTable(std::unordered_map<int, std::vector<lis::hashTableElement>>& 
     }
 }
 
-pair<string, vector<minimizer::MinimizerTriple>> returnNameMinimizerPair(const std::string &name, const std::string &target, int w, int k) {
+pair<string, vector<minimizer::MinimizerTriple>> returnNameMinimizerPair(const std::string name, std::string target, int w, int k) {
     vector<minimizer::MinimizerTriple> vec = minimizer::computeMinimizers(target, W, K);
-    return make_pair(name, vec);
+    return {name, vec};
 }
 
 std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinimizersFromFasta(char* f) {
@@ -71,22 +71,33 @@ std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinim
     std::shared_ptr<thread_pool::ThreadPool> thread_pool =
     thread_pool::createThreadPool();
     
-    vector<pair<string, vector<minimizer::MinimizerTriple>>> sequences;
-    std::vector<std::future<pair<string, vector<minimizer::MinimizerTriple>>>> future_sequnce;
+    vector<future<pair<string, vector<minimizer::MinimizerTriple>>>> future_sequnce;
     
     while (ReadFASTA(ffp, &sequenceString, &sequenceName, &sequenceSize)) {
         string sequence = string(sequenceString, sequenceSize);
         string name = string(sequenceName);
         
-        future_sequnce.emplace_back(thread_pool->submit_task(returnNameMinimizerPair, std::ref(name), std::ref(name), W, K));
-
         free(sequenceString);
         free(sequenceName);
+        
+        future_sequnce.emplace_back(thread_pool->submit_task(returnNameMinimizerPair, name, sequence, W, K));
     }
     
+    vector<pair<string, vector<minimizer::MinimizerTriple>>> sequences = *new vector<pair<string, vector<minimizer::MinimizerTriple>>>(future_sequnce.size());
+    
+    int i=0;
     for (auto& it: future_sequnce) {
         it.wait();
-        sequences.push_back(it.get());
+        if(it.valid()) {
+            pair<string, vector<minimizer::MinimizerTriple>> pair = it.get();
+            cout<<pair.first<<endl;
+            try {
+                sequences[i] = pair;
+                i++;
+            }  catch (const std::length_error& le) {
+                std::cerr << "Length error: " << le.what() << '\n';
+            }
+        }
     }
 
     CloseFASTA(ffp);
@@ -116,15 +127,16 @@ void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::M
     thread_pool::createThreadPool();
     std::vector<std::future<std::pair<int, std::vector<std::pair<int, bool>>>>> thread_futures;
     
-    double limit = 0.008;
+    //double limit = 0.008;
     for (int i = 0; i < sequences.size(); ++i) {
-        thread_futures.emplace_back(thread_pool->submit_task(getSimilarWrapper, i,sequences[i].second, std::ref(ht)));
+        thread_futures.emplace_back(thread_pool->submit_task(getSimilarWrapper, i, sequences[i].second, std::ref(ht)));
     }
     
     for (auto& it: thread_futures) {
         it.wait();
-        insertInTable(ht, it.get().first, sequences[it.get().first].second);
-        for (auto element: it.get().second) {
+        std::pair<int, std::vector<std::pair<int, bool>>> similar = it.get();
+        insertInTable(ht, similar.first, sequences[similar.first].second);
+        for (auto element: similar.second) {
             outputInPaf(sequences[it.get().first].first, sequences[element.first].first, element.second);
         }
     }

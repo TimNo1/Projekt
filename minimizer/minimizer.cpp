@@ -53,10 +53,12 @@ namespace {
 
 namespace minimizer {
 
-    std::vector<MinimizerTriple> computeMinimizers(const std::string &target, int w, int k) {
+    std::vector<MinimizerTriple> computeMinimizers(const std::string target, int w, int k) {
         std::vector<MinimizerTriple> retVec;
         int n = target.size();
 
+        const char* target1 = target.c_str();
+        
         if (n < k) {
             return retVec; // ne postoji ni jedan kmer
         }
@@ -78,8 +80,8 @@ namespace minimizer {
         hashType tmpPot = 1;
         for (int i = 0; i < k; i++) {
             tmpHash *= BASE;
-            tmpHash += baseValue[target[i]];
-            tmpRcHash += tmpPot * baseValue[rcMap[target[i]]];
+            tmpHash += baseValue[target1[i]];
+            tmpRcHash += tmpPot * baseValue[rcMap[target1[i]]];
             tmpPot *= BASE;
         }
 
@@ -89,13 +91,13 @@ namespace minimizer {
             MinimizerTriple mp2 = MinimizerTriple(tmpRcHash, i, true);
             push(mp1, dq);
             push(mp2, dq);
-            tmpHash -= lastPower * baseValue[target[i]];
+            tmpHash -= lastPower * baseValue[target1[i]];
             tmpHash *= BASE;
-            tmpHash += baseValue[target[i + k]];
+            tmpHash += baseValue[target1[i + k]];
 
-            tmpRcHash -= baseValue[rcMap[target[i]]];
+            tmpRcHash -= baseValue[rcMap[target1[i]]];
             tmpRcHash /= BASE;
-            tmpRcHash += lastPower * baseValue[rcMap[target[i + k]]];
+            tmpRcHash += lastPower * baseValue[rcMap[target1[i + k]]];
         }
 
 
@@ -111,13 +113,13 @@ namespace minimizer {
             push(mp2, dq);
             processState(dq, retVec, lastPositionTaken);
 
-            tmpHash -= lastPower * baseValue[target[i]];
+            tmpHash -= lastPower * baseValue[target1[i]];
             tmpHash *= BASE;
-            tmpHash += baseValue[target[i + k]];
+            tmpHash += baseValue[target1[i + k]];
 
-            tmpRcHash -= baseValue[rcMap[target[i]]];
+            tmpRcHash -= baseValue[rcMap[target1[i]]];
             tmpRcHash /= BASE;
-            tmpRcHash += lastPower * baseValue[rcMap[target[i + k]]];
+            tmpRcHash += lastPower * baseValue[rcMap[target1[i + k]]];
         }
 
         return retVec;
