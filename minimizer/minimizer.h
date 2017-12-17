@@ -8,10 +8,12 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
+#include <map>
 
 
 namespace minimizer {
     typedef long long hashType;
+
 
     struct MinimizerTriple {
         hashType h;

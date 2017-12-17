@@ -9,7 +9,6 @@
 #include "ProjektConfig.h"
 #include "finder.h"
 #include "lcskpp.h"
-#include "minimizer/minimizer.h"
 
 #define K 15
 #define W 5
