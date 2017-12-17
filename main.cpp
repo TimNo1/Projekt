@@ -11,7 +11,7 @@
 #include "lcskpp.h"
 
 #include "minimizer/minimizer.h"
-#include "thread_pool/include/thread_pool/thread_pool.hpp"
+#include "thread_pool/thread_pool.hpp"
 
 
 #define K 15
