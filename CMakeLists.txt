@@ -63,6 +63,8 @@ add_subdirectory (lcsk++)
 add_subdirectory(lis)
 add_subdirectory(thread_pool)
 
+find_library(THREAD_POOL thread_pool thread_pool)
+
 # add the executable
 add_executable(Projekt main.cpp)
 target_link_libraries (Projekt KmerFinder)
@@ -71,7 +73,7 @@ target_link_libraries (Projekt gtest_main)
 target_link_libraries (Projekt minimizer)
 target_link_libraries(Projekt lcskpp)
 target_link_libraries(Projekt lis)
-target_link_libraries(Projekt thread_pool pthread)
+target_link_libraries(Projekt ${THREAD_POOL})
 
 # add a "test" target:
 enable_testing()
