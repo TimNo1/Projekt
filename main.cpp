@@ -30,9 +30,16 @@ std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinim
 std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& mins);
 
 /*
- Launch with 2 arguments, first is the path to the file.
- If the second argument is 1 then the program will not run in parallel mode.
- For any other second argument program will run in parallel mode.
+ Launch with 1 or 2 arguments, first is the path to the file.
+ If the second argument is not present or is not equal to '1' program will run in parallel mode.
+ If second argument equals '1' program will not run in parallel mode.
+
+ parallel launch, output on stdout:
+ ./Projekt read.fasta
+
+ not parallel launch, output on stdout:
+ ./Projekt read.fasta 1
+
  */
 int main (int argc, char *argv[])
 {
