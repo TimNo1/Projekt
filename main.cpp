@@ -24,6 +24,8 @@ extern "C"{
 using namespace std;
 void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
                     std::unordered_map<int, std::vector<lis::hashTableElement>>& ht);
+void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
+                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht);
 std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinimizersFromFasta(char* f);
 std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& mins);
 
@@ -84,7 +86,7 @@ std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinim
         future_sequnce.emplace_back(thread_pool->submit_task(returnNameMinimizerPair, name, sequence, W, K));
     }
     
-    vector<pair<string, vector<minimizer::MinimizerTriple>>> sequences = *new vector<pair<string, vector<minimizer::MinimizerTriple>>>(future_sequnce.size());
+    vector<pair<string, vector<minimizer::MinimizerTriple>>> sequences = vector<pair<string, vector<minimizer::MinimizerTriple>>>(future_sequnce.size());
     
     int i=0;
     for (auto& it: future_sequnce) {
@@ -120,7 +122,7 @@ std::pair<int, std::vector<std::pair<int, bool>>> getSimilarWrapper(int sequence
     return {sequenceIndex, lis};
 }
 //samo ispise iz pafa ono sto je potrebno da bi jaccard.py radio dobroo
-void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
+void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
                     std::unordered_map<int, std::vector<lis::hashTableElement>>& ht) {
 
     std::shared_ptr<thread_pool::ThreadPool> thread_pool =
@@ -143,7 +145,18 @@ void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::M
     std::cerr<<"dotud2"<<std::endl; // DOTUD NE DODE
 }
 
-
+void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
+                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht) {
+    
+    double limit = 0.008;
+    for (int i = 0; i < sequences.size(); ++i) {
+        auto l = lis::getSimilar(i, sequences[i].second, ht);
+        insertInTable(ht, i, sequences[i].second);
+        for (auto element: l) {
+            outputInPaf(sequences[i].first, sequences[element.first].first, element.second);
+        }
+    }
+}
 
 void printHashFromFastaFile(char* seqfile){
     FASTAFILE* ffp = OpenFASTA(seqfile);
