@@ -31,7 +31,7 @@ std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(co
 
 /*
  Launch with 2 arguments, first is the path to the file.
- If the second argument is 1 then the program will run in parallel mode.
+ If the second argument is 1 then the program will not run in parallel mode.
  */
 int main (int argc, char *argv[])
 {
