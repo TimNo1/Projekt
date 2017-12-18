@@ -29,6 +29,10 @@ void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<mini
 std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinimizersFromFasta(char* f);
 std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& mins);
 
+/*
+ Launch with 2 arguments, first is the path to the file.
+ If the second argument is 1 then the program will run in parallel mode.
+ */
 int main (int argc, char *argv[])
 {
 //    fprintf(stdout,"Version %d.%d\n",
@@ -39,8 +43,17 @@ int main (int argc, char *argv[])
     auto mins = getMinimizersFromFasta(argv[1]);
     std::cerr << "minimizere naso" << std::endl;
     auto ht = generateHashTable(mins);
-    //outputOverlaps(mins, ht);
-    outputOverlapsParallel(mins, ht);
+    
+    if(argc>2){
+        if (*argv[2] == '1') {
+            outputOverlapsParallel(mins, ht);
+        } else {
+            outputOverlaps(mins, ht);
+        }
+    } else {
+        outputOverlaps(mins, ht);
+    }
+
     return 0;
 }
 
