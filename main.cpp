@@ -43,15 +43,16 @@ int main (int argc, char *argv[])
     auto mins = getMinimizersFromFasta(argv[1]);
     std::cerr << "minimizere naso" << std::endl;
     auto ht = generateHashTable(mins);
+    std::unordered_map<int, std::vector<lis::hashTableElement>> emptyTable;
     
     if(argc>2){
         if (*argv[2] == '1') {
             outputOverlapsParallel(mins, ht);
         } else {
-            outputOverlaps(mins, ht);
+            outputOverlaps(mins, emptyTable);
         }
     } else {
-        outputOverlaps(mins, ht);
+        outputOverlaps(mins, emptyTable);
     }
 
     return 0;
@@ -147,7 +148,6 @@ void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<mini
     for (int i = 0; i < (int)sequences.size(); ++i) {
         thread_futures.emplace_back(thread_pool->submit_task(getSimilarWrapper, i, sequences[i].second, std::ref(ht)));
     }
-    std::cerr<<"dotud" << std::endl; //DOTUD DODE
     for (auto& it: thread_futures) {
         it.wait();
         std::pair<int, std::vector<std::pair<int, bool>>> similar = it.get();
@@ -156,7 +156,6 @@ void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<mini
             outputInPaf(sequences[similar.first].first, sequences[element.first].first, element.second);
         }
     }
-    std::cerr<<"dotud2"<<std::endl; // DOTUD NE DODE
 }
 
 void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,

@@ -56,6 +56,8 @@ namespace lis {
         std::unordered_map<int, std::vector<int>> seqsForLds;
         for (minimizer::MinimizerTriple mini: v1) {
             for (auto& element: ht[mini.h]) {
+                if (sequenceIndex <= element.sequenceIndex)
+                    continue;
                 if (element.rc)
                     seqsForLds[element.sequenceIndex].push_back(element.position * -1);
                 else
