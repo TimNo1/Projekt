@@ -86,35 +86,38 @@ std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinim
     char* sequenceString;
     char* sequenceName;
     int sequenceSize = 0;
-    std::shared_ptr<thread_pool::ThreadPool> thread_pool =
-    thread_pool::createThreadPool();
+//    std::shared_ptr<thread_pool::ThreadPool> thread_pool =
+//    thread_pool::createThreadPool();
     
-    vector<future<pair<string, vector<minimizer::MinimizerTriple>>>> future_sequnce;
-    
+//    vector<future<pair<string, vector<minimizer::MinimizerTriple>>>> future_sequnce;
+
+    vector<pair<string, vector<minimizer::MinimizerTriple>>> sequences = vector<pair<string, vector<minimizer::MinimizerTriple>>>();
     while (ReadFASTA(ffp, &sequenceString, &sequenceName, &sequenceSize)) {
         string sequence = string(sequenceString, sequenceSize);
         string name = string(sequenceName);
         
         free(sequenceString);
         free(sequenceName);
-        
-        future_sequnce.emplace_back(thread_pool->submit_task(returnNameMinimizerPair, name, sequence, W, K));
+        sequences.push_back({name, minimizer::computeMinimizers(sequence, W, K)});
+//        future_sequnce.emplace_back(thread_pool->submit_task(returnNameMinimizerPair, name, sequence, W, K));
     }
     
-    vector<pair<string, vector<minimizer::MinimizerTriple>>> sequences = vector<pair<string, vector<minimizer::MinimizerTriple>>>(future_sequnce.size());
-    
-    int i=0;
-    for (auto& it: future_sequnce) {
-        it.wait();
-        if(it.valid()) {
-            pair<string, vector<minimizer::MinimizerTriple>> pair = it.get();
-            try {
-                sequences[i] = pair;
-                i++;
-            }  catch (const std::length_error& le) {
-                std::cerr << "Length error: " << le.what() << '\n';
-            }
-        }
+
+//    int i=0;
+//    for (auto& it: future_sequnce) {
+//        it.wait();
+//        if(it.valid()) {
+//            pair<string, vector<minimizer::MinimizerTriple>> pair = it.get();
+//            try {
+//                sequences[i] = pair;
+//                i++;
+//            }  catch (const std::length_error& le) {
+//                std::cerr << "Length error: " << le.what() << '\n';
+//            }
+//        }
+//    }
+    for (int i = 0; i < (int)sequences.size(); i++) {
+        sequences[i].second = minimizer::reduceMinimizers(sequences[i].second);
     }
 
     CloseFASTA(ffp);

@@ -10,6 +10,7 @@
 #include "minimizer.h"
 
 namespace {
+    std::unordered_map<minimizer::hashType, int> hashCnt;
     std::map<char, int> baseValue = {{'A', 3}, {'T', 2}, {'G', 1}, {'C', 0}};
     const int BASE = 4;
     std::map<char, char> rcMap = {{'A', 'T'}, {'C', 'G'}, {'T', 'A'}, {'G', 'C'}};
@@ -29,6 +30,7 @@ namespace {
 
         if (lastPositionTaken < front.position) {
             result.push_back(front);
+            hashCnt[front.h]++;
             lastPositionTaken = front.position;
         }
         while (!dq.empty() && dq.front().h == front.h) {
@@ -36,6 +38,7 @@ namespace {
             dq.pop_front();
             if (lastPositionTaken < front.position) {
                 result.push_back(front);
+                hashCnt[front.h]++;
                 lastPositionTaken = front.position;
             }
         }
@@ -123,6 +126,15 @@ namespace minimizer {
         }
 
         return retVec;
+    }
+
+    std::vector<minimizer::MinimizerTriple> reduceMinimizers(std::vector<MinimizerTriple>& minimizers) {
+        std::vector<MinimizerTriple> ret;
+        for (MinimizerTriple mini: minimizers) {
+            if (hashCnt[mini.h] < 34)
+                ret.push_back(mini);
+        }
+        return ret;
     }
 
 

@@ -9,10 +9,12 @@
 #include <string>
 #include <unordered_set>
 #include <map>
+#include <unordered_map>
 
 
 namespace minimizer {
     typedef long long hashType;
+
 
 
     struct MinimizerTriple {
@@ -31,6 +33,8 @@ namespace minimizer {
 
     // vrati minimizere redom kako se oni nalaze u stringu
     std::vector<MinimizerTriple> computeMinimizers(const std::string target, int w, int k);
+
+    std::vector<minimizer::MinimizerTriple> reduceMinimizers(std::vector<MinimizerTriple>& minimizers);
 
 } // namespace minimizer
 
