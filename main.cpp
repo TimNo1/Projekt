@@ -47,12 +47,12 @@ int main (int argc, char *argv[])
     
     if(argc>2){
         if (*argv[2] == '1') {
-            outputOverlapsParallel(mins, ht);
-        } else {
             outputOverlaps(mins, emptyTable);
+        } else {
+            outputOverlapsParallel(mins, ht);
         }
     } else {
-        outputOverlaps(mins, emptyTable);
+        outputOverlapsParallel(mins, ht);
     }
 
     return 0;
