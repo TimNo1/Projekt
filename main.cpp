@@ -39,7 +39,8 @@ int main (int argc, char *argv[])
     auto mins = getMinimizersFromFasta(argv[1]);
     std::cerr << "minimizere naso" << std::endl;
     auto ht = generateHashTable(mins);
-    outputOverlaps(mins, ht);
+    //outputOverlaps(mins, ht);
+    outputOverlapsParallel(mins, ht);
     return 0;
 }
 
@@ -139,7 +140,7 @@ void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<mini
         std::pair<int, std::vector<std::pair<int, bool>>> similar = it.get();
 //        insertInTable(ht, similar.first, sequences[similar.first].second);
         for (auto element: similar.second) {
-            outputInPaf(sequences[it.get().first].first, sequences[element.first].first, element.second);
+            outputInPaf(sequences[similar.first].first, sequences[element.first].first, element.second);
         }
     }
     std::cerr<<"dotud2"<<std::endl; // DOTUD NE DODE
