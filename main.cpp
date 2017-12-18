@@ -35,6 +35,7 @@ int main (int argc, char *argv[])
     
     
     auto mins = getMinimizersFromFasta(argv[1]);
+    std::cerr << "minimizere naso" << std::endl;
     auto ht = generateHashTable(mins);
     outputOverlaps(mins, ht);
     return 0;
@@ -42,12 +43,12 @@ int main (int argc, char *argv[])
 
 std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& mins) {
     std::unordered_map<int, std::vector<lis::hashTableElement>> ret;
-//    for (int i = 0; i < (int)mins.size(); i++) {
-//        for (int j = 0; j < (int)mins[i].second.size(); j++) {
-//            minimizer::MinimizerTriple mini = mins[i].second[j];
-//            ret[mini.h].push_back(lis::hashTableElement(i, j, mini.rc));
-//        }
-//    }
+    for (int i = 0; i < (int)mins.size(); i++) {
+        for (int j = 0; j < (int)mins[i].second.size(); j++) {
+            minimizer::MinimizerTriple mini = mins[i].second[j];
+            ret[mini.h].push_back(lis::hashTableElement(i, j, mini.rc));
+        }
+    }
     return ret;
 
 }
@@ -90,7 +91,6 @@ std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinim
         it.wait();
         if(it.valid()) {
             pair<string, vector<minimizer::MinimizerTriple>> pair = it.get();
-            cout<<pair.first<<endl;
             try {
                 sequences[i] = pair;
                 i++;
@@ -126,20 +126,21 @@ void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::M
     std::shared_ptr<thread_pool::ThreadPool> thread_pool =
     thread_pool::createThreadPool();
     std::vector<std::future<std::pair<int, std::vector<std::pair<int, bool>>>>> thread_futures;
-    
+
     //double limit = 0.008;
-    for (int i = 0; i < sequences.size(); ++i) {
+    for (int i = 0; i < (int)sequences.size(); ++i) {
         thread_futures.emplace_back(thread_pool->submit_task(getSimilarWrapper, i, sequences[i].second, std::ref(ht)));
     }
-    
+    std::cerr<<"dotud" << std::endl; //DOTUD DODE
     for (auto& it: thread_futures) {
         it.wait();
         std::pair<int, std::vector<std::pair<int, bool>>> similar = it.get();
-        insertInTable(ht, similar.first, sequences[similar.first].second);
+//        insertInTable(ht, similar.first, sequences[similar.first].second);
         for (auto element: similar.second) {
             outputInPaf(sequences[it.get().first].first, sequences[element.first].first, element.second);
         }
     }
+    std::cerr<<"dotud2"<<std::endl; // DOTUD NE DODE
 }
 
 
