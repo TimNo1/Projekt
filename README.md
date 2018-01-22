@@ -1,5 +1,7 @@
 # Projekt
 
+![image](https://travis-ci.org/TimNo1/Projekt.svg?branch=minimizer)
+
 C++ implementacija alata za preklapanje dugačkih greškovitih očitanja treće generacije sekvenciranja.
 
 ## Dependencies
