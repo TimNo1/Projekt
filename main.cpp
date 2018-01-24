@@ -25,14 +25,14 @@ using namespace std;
 void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
                     std::unordered_map<int, std::vector<lis::hashTableElement>>& ht);
 void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
-                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht);
+                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht, int numberOfThreads);
 std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>> getMinimizersFromFasta(char* f);
 std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& mins);
 
 /*
  Launch with 1 or 2 arguments, first is the path to the file.
- If the second argument is not present or is not equal to '1' program will run in parallel mode.
- If second argument equals '1' program will not run in parallel mode.
+ If the second argument is not present the program will run in parallel mode with the optimal number of threads.
+ The second argument, if present, should be a number which will specify the number of threads used to parallelize the
 
  parallel launch, output on stdout:
  ./Projekt read.fasta
@@ -57,10 +57,10 @@ int main (int argc, char *argv[])
         if (*argv[2] == '1') {
             outputOverlaps(mins, emptyTable);
         } else {
-            outputOverlapsParallel(mins, ht);
+            outputOverlapsParallel(mins, ht, atoi(argv[2]));
         }
     } else {
-        outputOverlapsParallel(mins, ht);
+        outputOverlapsParallel(mins, ht, 0);
     }
 
     return 0;
@@ -149,10 +149,16 @@ std::pair<int, std::vector<std::pair<int, bool>>> getSimilarWrapper(int sequence
 }
 //samo ispise iz pafa ono sto je potrebno da bi jaccard.py radio dobroo
 void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
-                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht) {
-
-    std::shared_ptr<thread_pool::ThreadPool> thread_pool =
-    thread_pool::createThreadPool();
+                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht, int numberOfThreads) {
+    
+    std::shared_ptr<thread_pool::ThreadPool> thread_pool;
+    
+    if (numberOfThreads<=0) {
+        thread_pool = thread_pool::createThreadPool();
+    } else {
+        thread_pool = thread_pool::createThreadPool(numberOfThreads);
+    }
+    
     std::vector<std::future<std::pair<int, std::vector<std::pair<int, bool>>>>> thread_futures;
 
     //double limit = 0.008;

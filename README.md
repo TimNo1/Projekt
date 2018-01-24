@@ -13,7 +13,7 @@ C++ implementacija alata za preklapanje dugačkih greškovitih očitanja treće 
 
 ## Usage
 
-Program se pokreće iz naredbenog retka sa dva argumenta od kojih je drugi opcionalan. Prvi argument je putanja do .fasta datoteke koja se želi obraditi, drugi argument služi za odabir moda rada. Ako je 1 onda se obrada obavlja samo pomoću jedne dretve, dok ne navođenje ničega razultira izvođenjem u više dretvi. Višedretvenost je izvedena uz pomoć https://github.com/rvaser/thread_pool.
+Program se pokreće iz naredbenog retka sa dva argumenta od kojih je drugi opcionalan. Prvi argument je putanja do .fasta datoteke koja se želi obraditi, dok drugi argument služi za odabir moda rada. Drugi argument predstavlja broj dretvi, a ako se ne navede onda se program pokreće sa optimalnim brojem dretvi u ovisnosti o računalu na kojem se pokreće. Višedretvenost je izvedena uz pomoć https://github.com/rvaser/thread_pool.
 
 ## Description
 
