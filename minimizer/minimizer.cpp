@@ -15,9 +15,15 @@ namespace {
     const int BASE = 4;
     std::map<char, char> rcMap = {{'A', 'T'}, {'C', 'G'}, {'T', 'A'}, {'G', 'C'}};
 
-    void push(const minimizer::MinimizerTriple& triple, std::deque<minimizer::MinimizerTriple>& dq) {
-        while (!dq.empty() && triple < dq.back()) {
-            dq.pop_back();
+    void push(const minimizer::MinimizerTriple& triple, std::deque<minimizer::MinimizerTriple>& dq, bool maximizer) {
+        if(maximizer){
+            while (!dq.empty() && triple > dq.back()) {
+                dq.pop_back();
+            }
+        }else{
+            while (!dq.empty() && triple < dq.back()) {
+              dq.pop_back();
+            }
         }
         dq.push_back(triple);
     }
@@ -52,12 +58,41 @@ namespace {
 
 
 
+
 } // namespace
 
 namespace minimizer {
 
-    std::vector<MinimizerTriple> computeMinimizers(const std::string target, int w, int k) {
+    std::vector<MinimizerTriple> mergeVectorsByPosition(std::vector<MinimizerTriple> v1,std::vector<MinimizerTriple> v2){
+        if(v1.empty())
+            return v2;
+        if(v2.empty())
+            return v1;
         std::vector<MinimizerTriple> retVec;
+        int i = 0;
+        int j = 0;
+        int m=v1.size();
+        int n=v2.size();
+        while (i < m && j < n) {
+            if (v1[i].position <= v2[j].position) {
+                retVec.push_back(v1[i]);
+                i++;
+            } else {
+                retVec.push_back(v2[j]);
+                j++;
+            }
+        }
+        if (i < m)
+            for (int p = i; p < m; p++)
+                retVec.push_back(v1[p]);
+         else
+            for (int p = j; p < n; p++)
+                retVec.push_back(v2[p]);
+        return retVec;
+    }
+
+    std::vector<MinimizerTriple> computeMinimizers(const std::string target, int w, int k) {
+        std::vector<MinimizerTriple> retVec, vecMin, vecMax;
         int n = target.size();
 
         const char* target1 = target.c_str();
@@ -71,16 +106,17 @@ namespace minimizer {
         }
 
 
-        std::deque<MinimizerTriple> dq;
+        std::deque<MinimizerTriple> dqMin,dqMax;
 
         hashType lastPower = 1;
+        hashType tmpHash = 0;
+        hashType tmpRcHash = 0;
+        hashType tmpPot = 1;
+        int lastPositionTaken = -1;
+
         for (int i = 0; i < k - 1; i++)
             lastPower *= BASE;
 
-        hashType tmpHash = 0;
-        hashType tmpRcHash = 0;
-
-        hashType tmpPot = 1;
         for (int i = 0; i < k; i++) {
             tmpHash *= BASE;
             tmpHash += baseValue[target1[i]];
@@ -92,8 +128,8 @@ namespace minimizer {
         for (int i = 0; i < w; i++) {
             MinimizerTriple mp1 = MinimizerTriple(tmpHash, i, false);
             MinimizerTriple mp2 = MinimizerTriple(tmpRcHash, i, true);
-            push(mp1, dq);
-            push(mp2, dq);
+            push(mp1, dqMin, false);
+            push(mp2, dqMin, false);
             tmpHash -= lastPower * baseValue[target1[i]];
             tmpHash *= BASE;
             tmpHash += baseValue[target1[i + k]];
@@ -103,18 +139,66 @@ namespace minimizer {
             tmpRcHash += lastPower * baseValue[rcMap[target1[i + k]]];
         }
 
-
-        int lastPositionTaken = -1;
-
-        processState(dq, retVec, lastPositionTaken);
+        processState(dqMin, vecMin, lastPositionTaken);
 
         for (int i = w; i < n - k + 1; i++) {
-            pop(i - w, dq);
+            pop(i - w, dqMin);
             MinimizerTriple mp1 = MinimizerTriple(tmpHash, i, false);
             MinimizerTriple mp2 = MinimizerTriple(tmpRcHash, i, true);
-            push(mp1, dq);
-            push(mp2, dq);
-            processState(dq, retVec, lastPositionTaken);
+            push(mp1, dqMin, false);
+            push(mp2, dqMin, false);
+            processState(dqMin, vecMin, lastPositionTaken);
+
+            tmpHash -= lastPower * baseValue[target1[i]];
+            tmpHash *= BASE;
+            tmpHash += baseValue[target1[i + k]];
+
+            tmpRcHash -= baseValue[rcMap[target1[i]]];
+            tmpRcHash /= BASE;
+            tmpRcHash += lastPower * baseValue[rcMap[target1[i + k]]];
+        }
+        //od tu
+
+        lastPower = 1;
+        tmpHash = 0;
+        tmpRcHash = 0;
+        tmpPot = 1;
+        lastPositionTaken = -1;
+
+        for (int i = 0; i < k - 1; i++)
+            lastPower *= BASE;
+
+        for (int i = 0; i < k; i++) {
+            tmpHash *= BASE;
+            tmpHash += baseValue[target1[i]];
+            tmpRcHash += tmpPot * baseValue[rcMap[target1[i]]];
+            tmpPot *= BASE;
+        }
+
+        // queue s maksimumom algoritam
+        for (int i = 0; i < w; i++) {
+            MinimizerTriple mp1 = MinimizerTriple(tmpHash, i, false);
+            MinimizerTriple mp2 = MinimizerTriple(tmpRcHash, i, true);
+            push(mp1, dqMax, true);
+            push(mp2, dqMax, true);
+            tmpHash -= lastPower * baseValue[target1[i]];
+            tmpHash *= BASE;
+            tmpHash += baseValue[target1[i + k]];
+
+            tmpRcHash -= baseValue[rcMap[target1[i]]];
+            tmpRcHash /= BASE;
+            tmpRcHash += lastPower * baseValue[rcMap[target1[i + k]]];
+        }
+
+        processState(dqMax, vecMax, lastPositionTaken);
+
+        for (int i = w; i < n - k + 1; i++) {
+            pop(i - w, dqMax);
+            MinimizerTriple mp1 = MinimizerTriple(tmpHash, i, false);
+            MinimizerTriple mp2 = MinimizerTriple(tmpRcHash, i, true);
+            push(mp1, dqMax, true);
+            push(mp2, dqMax, true);
+            processState(dqMax, vecMax, lastPositionTaken);
 
             tmpHash -= lastPower * baseValue[target1[i]];
             tmpHash *= BASE;
@@ -125,6 +209,8 @@ namespace minimizer {
             tmpRcHash += lastPower * baseValue[rcMap[target1[i + k]]];
         }
 
+        //do tu
+        retVec=mergeVectorsByPosition(vecMin,vecMax);
         return retVec;
     }
 

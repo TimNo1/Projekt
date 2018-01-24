@@ -29,6 +29,10 @@ namespace minimizer {
             return h < other.h;
         }
 
+        inline bool operator>(const MinimizerTriple& other) const {
+            return h > other.h;
+        }
+
     };
 
     // vrati minimizere redom kako se oni nalaze u stringu
