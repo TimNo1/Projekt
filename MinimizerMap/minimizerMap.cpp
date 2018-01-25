@@ -5,7 +5,7 @@
 #include "minimizerMap.h"
 
 minimizerMap::minimizerMap(std::unordered_map<int, std::vector<lis::hashTableElement>> originalMap) {
-    long long size = 0;
+    currentLength = 0;
     positionInArray = std::unordered_map<int, std::pair<long long, int>>(originalMap.size());
     std::map<int, std::vector<int>> lengths = std::map<int, std::vector<int>>();
 
@@ -20,17 +20,17 @@ minimizerMap::minimizerMap(std::unordered_map<int, std::vector<lis::hashTableEle
         }
     }
 
-    array = std::vector<lis::hashTableElement>(size);
+    array = std::vector<lis::hashTableElement>(currentLength);
 
     for(auto& pair: originalMap){
         std::pair<long long, int> positionPair = positionInArray[pair.first];
-        for (long long i = positionPair.first; i < positionPair.second; ++i) {
-            array[i] = originalMap[pair.first][i];
+        for (long long i = positionPair.first; i < positionPair.first + positionPair.second; ++i) {
+            array[i] = originalMap[pair.first][i - positionPair.second];
         }
     }
 }
 
-std::vector<lis::hashTableElement> minimizerMap::operator[](const int k){
+std::vector<lis::hashTableElement> minimizerMap::get(const int k){
     if (minimizerMap::positionInArray.count(k)>0){
         std::pair<long long, int> pair = positionInArray[k];
         return  std::vector<lis::hashTableElement>(minimizerMap::array.begin()+pair.first, minimizerMap::array.begin() + pair.first + pair.second);

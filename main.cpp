@@ -72,7 +72,7 @@ std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(co
     for (int i = 0; i < (int)mins.size(); i++) {
         for (int j = 0; j < (int)mins[i].second.size(); j++) {
             minimizer::MinimizerTriple mini = mins[i].second[j];
-            lis::hashTableElement element = lis::hashTableElement();
+            lis::hashTableElement element;
             element.sequenceIndex = i; element.position = j; element.rc = mini.rc;
             ret[mini.h].push_back(element);
         }
@@ -83,7 +83,7 @@ std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(co
 
 void insertInTable(std::unordered_map<int, std::vector<lis::hashTableElement>>& ht, int sequenceIndex, std::vector<minimizer::MinimizerTriple> mins) {
     for (int i = 0, n = mins.size(); i < n; i++) {
-        lis::hashTableElement element();
+        lis::hashTableElement element;
         element.sequenceIndex = sequenceIndex; element.position = i; element.rc = mins[i].rc;
         ht[mins[i].h].push_back(element);
     }
@@ -147,7 +147,7 @@ void outputInPaf(const string& name1, const string& name2, bool plusStrand) {
 }
 
 std::pair<int, std::vector<std::pair<int, bool>>> getSimilarWrapper(int sequenceIndex, std::vector<minimizer::MinimizerTriple> v1,
-                                                                    std::unordered_map<int, std::vector<lis::hashTableElement>>& ht){
+                                                                    minimizerMap& ht){
     auto lis = lis::getSimilar(sequenceIndex, v1, ht);
     
     return {sequenceIndex, lis};
@@ -158,7 +158,7 @@ void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<mini
     
     std::shared_ptr<thread_pool::ThreadPool> thread_pool;
 
-    std::unordered_map<int, std::vector<lis::hashTableElement>> indexHt = minimizerMap(ht);
+    minimizerMap indexHt = minimizerMap(ht);
     
     if (numberOfThreads<=0) {
         thread_pool = thread_pool::createThreadPool();

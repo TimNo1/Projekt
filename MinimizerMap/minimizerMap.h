@@ -9,7 +9,7 @@
 #include <map>
 #include "lis.h"
 
-class minimizerMap : public std::unordered_map<int, std::vector<lis::hashTableElement>>{
+class minimizerMap {
 
 private:
     std::unordered_map<int, std::pair<long long, int>> positionInArray;
@@ -17,7 +17,7 @@ private:
     long long currentLength;
 public:
     minimizerMap(std::unordered_map<int, std::vector<lis::hashTableElement>> originalMap);
-    std::vector<lis::hashTableElement> operator[](const int k);
+    std::vector<lis::hashTableElement> get(const int k);
 };
 
 

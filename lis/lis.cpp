@@ -51,11 +51,11 @@ namespace {
 
 namespace lis {
     std::vector<std::pair<int, bool>> getSimilar(int sequenceIndex, std::vector<minimizer::MinimizerTriple> v1,
-                                                 std::unordered_map<int, std::vector<lis::hashTableElement>>& ht){//tu
+                                                 minimizerMap& ht){//tu
         std::unordered_map<int, std::vector<int>> seqsForLis;
         std::unordered_map<int, std::vector<int>> seqsForLds;
         for (minimizer::MinimizerTriple mini: v1) {
-            for (auto& element: ht[mini.h]) {
+            for (auto& element: ht.get(mini.h)) {
                 if (sequenceIndex <= element.sequenceIndex)
                     continue;
                 if (element.rc)
