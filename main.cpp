@@ -12,6 +12,7 @@
 
 #include "minimizer/minimizer.h"
 #include "thread_pool/thread_pool.hpp"
+#include "MinimizerMap/minimizerMap.h"
 
 
 #define K 15
@@ -152,6 +153,8 @@ void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<mini
                     std::unordered_map<int, std::vector<lis::hashTableElement>>& ht, int numberOfThreads) {
     
     std::shared_ptr<thread_pool::ThreadPool> thread_pool;
+
+    std::unordered_map<int, std::vector<lis::hashTableElement>> indexHt = minimizerMap(ht);
     
     if (numberOfThreads<=0) {
         thread_pool = thread_pool::createThreadPool();
@@ -163,7 +166,7 @@ void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<mini
 
     //double limit = 0.008;
     for (int i = 0; i < (int)sequences.size(); ++i) {
-        thread_futures.emplace_back(thread_pool->submit_task(getSimilarWrapper, i, sequences[i].second, std::ref(ht)));
+        thread_futures.emplace_back(thread_pool->submit_task(getSimilarWrapper, i, sequences[i].second, std::ref(indexHt)));
     }
     for (auto& it: thread_futures) {
         it.wait();
