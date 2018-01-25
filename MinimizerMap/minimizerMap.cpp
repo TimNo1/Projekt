@@ -6,17 +6,16 @@
 
 minimizerMap::minimizerMap(std::unordered_map<int, std::vector<lis::hashTableElement>> originalMap) {
     long long size = 0;
-    positionInArray = std::unordered_map(originalMap.size());
+    positionInArray = std::unordered_map<int, std::pair<long long, int>>(originalMap.size());
     std::map<int, std::vector<int>> lengths = std::map<int, std::vector<int>>();
 
-    int i=0;
     for (auto& pair : originalMap) {
         lengths[pair.second.size()].emplace_back(pair.first);
     }
 
     for(auto& pair : lengths){
         for(auto& hash : pair.second){
-            positionInArray.emplace(hash, std::pair(currentLength, pair.first));
+            positionInArray.emplace(hash, std::pair<long long, int>(currentLength, pair.first));
             currentLength+=pair.first;
         }
     }
@@ -33,7 +32,7 @@ minimizerMap::minimizerMap(std::unordered_map<int, std::vector<lis::hashTableEle
 
 std::vector<lis::hashTableElement> minimizerMap::operator[](const int k){
     if (minimizerMap::positionInArray.count(k)>0){
-        std::pair pair = positionInArray[k];
+        std::pair<long long, int> pair = positionInArray[k];
         return  std::vector<lis::hashTableElement>(minimizerMap::array.begin()+pair.first, minimizerMap::array.begin() + pair.first + pair.second);
     }
 

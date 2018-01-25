@@ -17,7 +17,7 @@ private:
     long long currentLength;
 public:
     minimizerMap(std::unordered_map<int, std::vector<lis::hashTableElement>> originalMap);
-    <std::vector<lis::hashTableElement>> operator[](const int k);
+    std::vector<lis::hashTableElement> operator[](const int k);
 };
 
 

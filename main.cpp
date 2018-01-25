@@ -72,7 +72,9 @@ std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(co
     for (int i = 0; i < (int)mins.size(); i++) {
         for (int j = 0; j < (int)mins[i].second.size(); j++) {
             minimizer::MinimizerTriple mini = mins[i].second[j];
-            ret[mini.h].push_back(lis::hashTableElement(i, j, mini.rc));
+            lis::hashTableElement element = lis::hashTableElement();
+            element.sequenceIndex = i; element.position = j; element.rc = mini.rc;
+            ret[mini.h].push_back(element);
         }
     }
     return ret;
@@ -81,7 +83,9 @@ std::unordered_map<int, std::vector<lis::hashTableElement>> generateHashTable(co
 
 void insertInTable(std::unordered_map<int, std::vector<lis::hashTableElement>>& ht, int sequenceIndex, std::vector<minimizer::MinimizerTriple> mins) {
     for (int i = 0, n = mins.size(); i < n; i++) {
-        ht[mins[i].h].push_back(lis::hashTableElement(sequenceIndex, i, mins[i].rc));
+        lis::hashTableElement element();
+        element.sequenceIndex = sequenceIndex; element.position = i; element.rc = mins[i].rc;
+        ht[mins[i].h].push_back(element);
     }
 }
 
