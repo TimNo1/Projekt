@@ -11,6 +11,12 @@ C++ implementation of the tool for computing overlaps of long noisy genomic read
 1. gcc 4.8+
 2. cmake 3.2+
 
+## Installation
+```shell
+./build.sh #run this to build
+./build/Projekt #run this with arguments to start the program
+```
+
 ## Usage
 
 The program is run from the command line with two arguments, of which the second one is optional. First argument denotes the path to the .fasta file which will be processed, while the second one is used to choose the mode in which the program will be run. The second argument, if present, denotes the number of threads that the program will use. Otherwise the program will be run with the optimal number of threads for the computer it is run on. Multithreading is done with the help of https://github.com/rvaser/thread_pool.
