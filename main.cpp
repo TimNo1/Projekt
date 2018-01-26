@@ -12,7 +12,6 @@
 
 #include "minimizer/minimizer.h"
 #include "thread_pool/thread_pool.hpp"
-#include "MinimizerMap/minimizerMap.h"
 
 
 #define K 15
@@ -56,7 +55,7 @@ int main (int argc, char *argv[])
     
     if(argc>2){
         if (*argv[2] == '1') {
-            outputOverlaps(mins, emptyTable);
+            outputOverlapsParallel(mins, ht, atoi(argv[2]));
         } else {
             outputOverlapsParallel(mins, ht, atoi(argv[2]));
         }
@@ -147,7 +146,7 @@ void outputInPaf(const string& name1, const string& name2, bool plusStrand) {
 }
 
 std::pair<int, std::vector<std::pair<int, bool>>> getSimilarWrapper(int sequenceIndex, std::vector<minimizer::MinimizerTriple> v1,
-                                                                    minimizerMap& ht){
+                                                                    minimizerMap<lis::hashTableElement>& ht){
     auto lis = lis::getSimilar(sequenceIndex, v1, ht);
     
     return {sequenceIndex, lis};
@@ -158,7 +157,7 @@ void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<mini
     
     std::shared_ptr<thread_pool::ThreadPool> thread_pool;
 
-    minimizerMap indexHt = minimizerMap(ht);
+    minimizerMap<lis::hashTableElement> indexHt = minimizerMap<lis::hashTableElement>(ht);
     
     if (numberOfThreads<=0) {
         thread_pool = thread_pool::createThreadPool();
@@ -185,14 +184,14 @@ void outputOverlapsParallel(const std::vector<pair<std::string, std::vector<mini
 void outputOverlaps(const std::vector<pair<std::string, std::vector<minimizer::MinimizerTriple>>>& sequences,
                     std::unordered_map<int, std::vector<lis::hashTableElement>>& ht) {
     
-    double limit = 0.008;
-    for (int i = 0; i < sequences.size(); ++i) {
-        auto l = lis::getSimilar(i, sequences[i].second, ht);
-        insertInTable(ht, i, sequences[i].second);
-        for (auto element: l) {
-            outputInPaf(sequences[i].first, sequences[element.first].first, element.second);
-        }
-    }
+    // double limit = 0.008;
+    // for (int i = 0; i < sequences.size(); ++i) {
+    //     auto l = lis::getSimilar(i, sequences[i].second, new minimizerMap<lis::hashTableElement>(ht));//ovo nece radit, al se ne poziva
+    //     insertInTable(ht, i, sequences[i].second);
+    //     for (auto element: l) {
+    //         outputInPaf(sequences[i].first, sequences[element.first].first, element.second);
+    //     }
+    // }
 }
 
 void printHashFromFastaFile(char* seqfile){

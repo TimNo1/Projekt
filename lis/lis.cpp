@@ -6,6 +6,18 @@
 #include <algorithm>
 #include <iostream>
 #include <unordered_map>
+#include <vector>
+
+template <typename T> 
+std::vector<T> minimizerMap<T>::get(const int k){
+        if (minimizerMap::positionInArray.count(k)>0){
+            std::pair<long long, int> pair = positionInArray[k];
+            return  std::vector<T>(minimizerMap::array.begin()+pair.first, minimizerMap::array.begin() + pair.first + pair.second);
+        }
+
+        return array;
+        
+}
 
 namespace {
     int ceilIndex(std::vector<int> &v, int l, int r, int key) {
@@ -45,13 +57,11 @@ namespace {
 
         return length;
     }
-
-
 }
 
 namespace lis {
     std::vector<std::pair<int, bool>> getSimilar(int sequenceIndex, std::vector<minimizer::MinimizerTriple> v1,
-                                                 minimizerMap& ht){//tu
+                                                 minimizerMap<hashTableElement>& ht){//tu
         std::unordered_map<int, std::vector<int>> seqsForLis;
         std::unordered_map<int, std::vector<int>> seqsForLds;
         for (minimizer::MinimizerTriple mini: v1) {
