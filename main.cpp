@@ -15,7 +15,7 @@
 
 
 #define K 15
-#define W 5
+#define W 13
 
 extern "C"{
 #include "fasta.h"
