@@ -2,7 +2,7 @@
 
 ![image](https://travis-ci.org/TimNo1/Projekt.svg?branch=minimizer)
 
-C++ implementacija alata za preklapanje dugačkih greškovitih očitanja treće generacije sekvenciranja.
+C++ implementation of the tool for computing overlaps of long noisy genomic reads made by third generation sequencing tools.
 
 ## Dependencies
 
@@ -13,8 +13,8 @@ C++ implementacija alata za preklapanje dugačkih greškovitih očitanja treće 
 
 ## Usage
 
-Program se pokreće iz naredbenog retka sa dva argumenta od kojih je drugi opcionalan. Prvi argument je putanja do .fasta datoteke koja se želi obraditi, dok drugi argument služi za odabir moda rada. Drugi argument predstavlja broj dretvi, a ako se ne navede onda se program pokreće sa optimalnim brojem dretvi u ovisnosti o računalu na kojem se pokreće. Višedretvenost je izvedena uz pomoć https://github.com/rvaser/thread_pool.
+The program is run from the command line with two arguments, of which the second one is optional. First argument denotes the path to the .fasta file which will be processed, while the second one is used to choose the mode in which the program will be run. The second argument, if present, denotes the number of threads that the program will use. Otherwise the program will be run with the optimal number of threads for the computer it is run on. Multithreading is done with the help of https://github.com/rvaser/thread_pool.
 
 ## Description
 
-Algoritam pronalaženja očitanja koje se preklapaju temelji se na nalaženju minimizera unutar očitanja, a za samo poravnava očitanja koristi se algoritam lis (https://en.wikipedia.org/wiki/Longest_increasing_subsequence). Algoritam je inspiriran minmapom i minmapom2 (https://github.com/lh3/minimap2).
+The algorithm for finding the reads that overlap is based on finding minimizers in the reads, and uses an implementation of the lis algorithm (https://en.wikipedia.org/wiki/Longest_increasing_subsequence) to align them. Our algorithm is inspired by minimap and minimap2 (https://github.com/lh3/minimap2).
